@@ -9,7 +9,7 @@ from core.serializers import ServiciosSerializar
 # Create your views here.
 class JSONResponse(HttpResponse):
     def __init__(self, data, **kwargs):
-        content = JSONResponse().render(data)
+        content = JSONRenderer().render(data)
         kwargs['content_type'] = 'application/json'
         super(JSONResponse, self).__init__(content,**kwargs)
 
@@ -17,7 +17,7 @@ class JSONResponse(HttpResponse):
 @csrf_exempt
 def servicios_lista(request):
     if request.method == 'GET':
-        servicios = Servicios.object.all()
+        servicios = Servicios.objects.all()
         serializer = ServiciosSerializar(servicios, many=True)
         return JSONResponse(serializer.data)
     elif request.method =='POST':
@@ -31,15 +31,15 @@ def servicios_lista(request):
 @csrf_exempt
 def servicio_detail(request, pk):
     try:
-        servicios = Servicios.object.all(pk=pk)
-    except servicios.DoesNotExist:
+        servicios = Servicios.objects.get(pk=pk)
+    except Servicios.DoesNotExist:
         return HttpResponse(status=404)
     if request.method == 'GET':
-        serializer = ServiciosSerializar(serie)
+        serializer = ServiciosSerializar(servicios)
         return JSONResponse(serializer.data)
     elif request.method == 'PUT':
         data = JSONParser().render(request)
-        serializer = ServiciosSerializar(serie, data=data)
+        serializer = ServiciosSerializar(servicios, data=data)
         if serializer.is_valid():
             serializer.saver()
             return JSONResponse(serializer.data)
@@ -47,4 +47,3 @@ def servicio_detail(request, pk):
     elif request.method == 'DELETE':
         servicios.delete()
         return HttpResponse(status=204)
-        
